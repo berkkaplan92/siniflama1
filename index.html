@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sınıflandırma Becerileri</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .mode-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mode-selector h2 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .game-area {
+            display: none;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .items-area {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .items-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .draggable-item {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            transition: transform 0.2s, box-shadow 0.2s;
+            padding: 10px;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+        }
+
+        .item-image {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .item-label {
+            font-size: 0.8em;
+            text-align: center;
+            color: #333;
+        }
+
+        .categories-area {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-box {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border: 3px dashed #ccc;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 250px;
+            transition: all 0.3s;
+        }
+
+        .category-box.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: scale(1.02);
+        }
+
+        .category-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .category-hint {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+
+        .category-name {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .category-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .placed-item {
+            width: 90%;
+            padding: 10px;
+            background: #f0f4ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .placed-item-icon {
+            font-size: 1.5em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-back {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .feedback.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .feedback.correct {
+            color: #4CAF50;
+        }
+
+        .feedback.incorrect {
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .categories-area {
+                flex-direction: column;
+            }
+            
+            .category-box {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Sınıflandırma Becerileri</h1>
+        </div>
+
+        <!-- Mod Seçimi -->
+        <div class="mode-selector" id="modeSelector">
+            <h2>Oyun Modunu Seç</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn" onclick="startThematicMode()">
+                    🎨 Tema Bazlı Mod
+                </button>
+                <button class="mode-btn" onclick="startMixedMode()">
+                    🎲 Karışık Kategoriler
+                </button>
+            </div>
+        </div>
+
+        <!-- Oyun Alanı -->
+        <div class="game-area" id="gameArea">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Seviye</div>
+                    <div class="stat-value" id="levelDisplay">1</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Doğru</div>
+                    <div class="stat-value" id="correctDisplay">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Yanlış</div>
+                    <div class="stat-value" id="incorrectDisplay">0</div>
+                </div>
+            </div>
+
+            <div class="items-area">
+                <h3 style="text-align: center; margin-bottom: 15px; color: #667eea;">Nesneleri Doğru Gruplara Sürükle</h3>
+                <div class="items-container" id="itemsContainer"></div>
+            </div>
+
+            <div class="categories-area" id="categoriesArea"></div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="checkBtn" onclick="checkAnswers()">Kontrol Et</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextLevel()" style="display: none;">Sonraki Seviye</button>
+                <button class="btn btn-back" onclick="backToMenu()">Ana Menü</button>
+            </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        // Oyun durumu
+        let currentMode = null;
+        let currentLevel = 1;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let currentTheme = null;
+        let placements = {};
+
+        // Kategoriler ve nesneler
+        const themes = {
+            yiyecekler: {
+                name: "Yiyecekler",
+                categories: {
+                    meyveler: { name: "Meyveler", icon: "🍎", items: ["elma", "armut", "muz", "portakal", "üzüm", "çilek"] },
+                    sebzeler: { name: "Sebzeler", icon: "🥕", items: ["havuç", "domates", "salatalık", "patates", "soğan", "brokoli"] },
+                    tatlilar: { name: "Tatlılar", icon: "🍰", items: ["pasta", "kurabiye", "çikolata", "dondurma", "baklava", "kek"] }
+                }
+            },
+            canlilar: {
+                name: "Canlılar",
+                categories: {
+                    hayvanlar: { name: "Hayvanlar", icon: "🐕", items: ["köpek", "kedi", "kuş", "balık", "tavşan", "fil"] },
+                    bitkiler: { name: "Bitkiler", icon: "🌳", items: ["ağaç", "çiçek", "çimen", "papatya", "gül", "kaktüs"] },
+                    bocekler: { name: "Böcekler", icon: "🦋", items: ["kelebek", "arı", "karınca", "uğurböceği", "sinek", "çekirge"] }
+                }
+            },
+            esyalar: {
+                name: "Eşyalar",
+                categories: {
+                    oyuncaklar: { name: "Oyuncaklar", icon: "🧸", items: ["ayıcık", "top", "bebek", "araba", "lego", "puzzle"] },
+                    kiyafetler: { name: "Kıyafetler", icon: "👕", items: ["tişört", "pantolon", "elbise", "ayakkabı", "şapka", "mont"] },
+                    mutfak: { name: "Mutfak", icon: "🍴", items: ["kaşık", "çatal", "bıçak", "tabak", "bardak", "tencere"] }
+                }
+            }
+        };
+
+        const mixedCategories = {
+            hayvanlar: { name: "Hayvanlar", icon: "🐕", items: ["köpek", "kedi", "kuş", "balık", "tavşan", "fil", "aslan", "zebra"] },
+            araclar: { name: "Araçlar", icon: "🚗", items: ["araba", "uçak", "gemi", "bisiklet", "otobüs", "tren", "helikopter", "motorsiklet"] },
+            meyveler: { name: "Meyveler", icon: "🍎", items: ["elma", "armut", "muz", "portakal", "üzüm", "çilek", "karpuz", "kavun"] },
+            renkler: { name: "Renkli Nesneler", icon: "🎨", items: ["kırmızı top", "mavi kutu", "sarı çiçek", "yeşil yaprak", "mor balon", "turuncu portakal"] }
+        };
+
+        // Sesleri yükle
+        const sounds = {
+            correct: new Audio('sounds/correct.mp3'),
+            incorrect: new Audio('sounds/incorrect.mp3'),
+            complete: new Audio('sounds/complete.mp3')
+        };
+
+        function startThematicMode() {
+            currentMode = 'thematic';
+            currentLevel = 1;
+            resetStats();
+            document.getElementById('modeSelector').style.display = 'none';
+            document.getElementById('gameArea').classList.add('active');
+            loadThematicLevel();
+        }
+
+        function startMixedMode() {
+            currentMode = 'mixed';
+            currentLevel = 1;
+            resetStats();
+            document.getElementById('modeSelector').style.display = 'none';
+            document.getElementById('gameArea').classList.add('active');
+            loadMixedLevel();
+        }
+
+        function resetStats() {
+            correctCount = 0;
+            incorrectCount = 0;
+            updateStats();
+        }
+
+        function loadThematicLevel() {
+            placements = {};
+            const themeKeys = Object.keys(themes);
+            currentTheme = themeKeys[Math.floor(Math.random() * themeKeys.length)];
+            const theme = themes[currentTheme];
+            
+            // Kategorileri oluştur
+            const categoriesArea = document.getElementById('categoriesArea');
+            categoriesArea.innerHTML = '';
+            
+            Object.keys(theme.categories).forEach(catKey => {
+                const category = theme.categories[catKey];
+                const categoryBox = createCategoryBox(catKey, category);
+                categoriesArea.appendChild(categoryBox);
+            });
+
+            // Nesneleri oluştur ve karıştır
+            const allItems = [];
+            Object.keys(theme.categories).forEach(catKey => {
+                const category = theme.categories[catKey];
+                const itemCount = Math.min(3 + currentLevel, category.items.length);
+                const selectedItems = category.items.slice(0, itemCount);
+                
+                selectedItems.forEach(item => {
+                    allItems.push({ name: item, category: catKey });
+                });
+            });
+
+            // Karıştır
+            shuffleArray(allItems);
+            
+            // Nesneleri ekrana ekle
+            const itemsContainer = document.getElementById('itemsContainer');
+            itemsContainer.innerHTML = '';
+            
+            allItems.forEach((item, index) => {
+                const itemElement = createDraggableItem(item, index);
+                itemsContainer.appendChild(itemElement);
+            });
+
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function loadMixedLevel() {
+            placements = {};
+            const difficulty = Math.min(2 + Math.floor(currentLevel / 2), 4);
+            const categoryKeys = Object.keys(mixedCategories);
+            shuffleArray(categoryKeys);
+            const selectedCategories = categoryKeys.slice(0, difficulty);
+
+            // Kategorileri oluştur
+            const categoriesArea = document.getElementById('categoriesArea');
+            categoriesArea.innerHTML = '';
+            
+            selectedCategories.forEach(catKey => {
+                const category = mixedCategories[catKey];
+                const categoryBox = createCategoryBox(catKey, category);
+                categoriesArea.appendChild(categoryBox);
+            });
+
+            // Her kategoriden nesneler seç
+            const allItems = [];
+            selectedCategories.forEach(catKey => {
+                const category = mixedCategories[catKey];
+                const itemCount = Math.min(2 + currentLevel, category.items.length);
+                const selectedItems = category.items.slice(0, itemCount);
+                
+                selectedItems.forEach(item => {
+                    allItems.push({ name: item, category: catKey });
+                });
+            });
+
+            // Karıştır
+            shuffleArray(allItems);
+            
+            // Nesneleri ekrana ekle
+            const itemsContainer = document.getElementById('itemsContainer');
+            itemsContainer.innerHTML = '';
+            
+            allItems.forEach((item, index) => {
+                const itemElement = createDraggableItem(item, index);
+                itemsContainer.appendChild(itemElement);
+            });
+
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function createCategoryBox(categoryKey, category) {
+            const box = document.createElement('div');
+            box.className = 'category-box';
+            box.dataset.category = categoryKey;
+            
+            box.innerHTML = `
+                <div class="category-header">
+                    <div class="category-hint">${category.icon}</div>
+                    <div class="category-name">${category.name}</div>
+                </div>
+                <div class="category-items" id="category-${categoryKey}"></div>
+            `;
+
+            // Drag & drop event listeners
+            box.addEventListener('dragover', handleDragOver);
+            box.addEventListener('drop', handleDrop);
+            box.addEventListener('dragleave', handleDragLeave);
+
+            return box;
+        }
+
+        function createDraggableItem(item, index) {
+            const div = document.createElement('div');
+            div.className = 'draggable-item';
+            div.draggable = true;
+            div.dataset.itemId = index;
+            div.dataset.category = item.category;
+            div.dataset.itemName = item.name;
+
+            // Resim yolunu oluştur
+            const imagePath = `assets/images/${item.name}.png`;
+
+            div.innerHTML = `
+                <div class="item-image">
+                    <img src="${imagePath}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 5px;">
+                </div>
+                <div class="item-label">${item.name}</div>
+            `;
+
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+
+            return div;
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+            e.dataTransfer.setData('itemId', e.target.dataset.itemId);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            
+            const categoryBox = e.target.closest('.category-box');
+            if (categoryBox) {
+                categoryBox.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            const categoryBox = e.target.closest('.category-box');
+            if (categoryBox) {
+                categoryBox.classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            const categoryBox = e.target.closest('.category-box');
+            if (!categoryBox) return false;
+
+            categoryBox.classList.remove('drag-over');
+
+            const itemId = e.dataTransfer.getData('itemId');
+            const draggedItem = document.querySelector(`[data-item-id="${itemId}"]`);
+            
+            if (!draggedItem) return false;
+
+            const categoryKey = categoryBox.dataset.category;
+            const categoryItems = categoryBox.querySelector('.category-items');
+
+            // Önceki yerleşimi temizle
+            if (placements[itemId]) {
+                const oldPlacement = document.getElementById(`placed-${itemId}`);
+                if (oldPlacement) {
+                    oldPlacement.remove();
+                }
+            }
+
+            // Yeni yerleşim
+            placements[itemId] = categoryKey;
+
+            // Orijinal item'ı gizle
+            draggedItem.style.display = 'none';
+
+            // Kategoriye ekle
+            const placedItem = document.createElement('div');
+            placedItem.className = 'placed-item';
+            placedItem.id = `placed-${itemId}`;
+            
+            const imagePath = `assets/images/${draggedItem.dataset.itemName}.png`;
+            
+            placedItem.innerHTML = `
+                <span class="placed-item-icon">
+                    <img src="${imagePath}" alt="${draggedItem.dataset.itemName}" style="width: 30px; height: 30px; object-fit: contain; border-radius: 3px;">
+                </span>
+                <span>${draggedItem.dataset.itemName}</span>
+            `;
+            
+            categoryItems.appendChild(placedItem);
+
+            return false;
+        }
+
+        function checkAnswers() {
+            let correct = 0;
+            let incorrect = 0;
+
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach(item => {
+                const itemId = item.dataset.itemId;
+                const correctCategory = item.dataset.category;
+                const placedCategory = placements[itemId];
+
+                if (placedCategory === correctCategory) {
+                    correct++;
+                } else {
+                    incorrect++;
+                }
+            });
+
+            correctCount += correct;
+            incorrectCount += incorrect;
+            updateStats();
+
+            if (incorrect === 0) {
+                showFeedback('Harika! Tümünü doğru yaptın! 🎉', 'correct');
+                playSound('correct');
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                showFeedback(`${correct} doğru, ${incorrect} yanlış. Tekrar dene! 💪`, 'incorrect');
+                playSound('incorrect');
+                setTimeout(() => {
+                    resetLevel();
+                }, 2000);
+            }
+        }
+
+        function resetLevel() {
+            placements = {};
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach(item => {
+                item.style.display = 'flex';
+            });
+
+            document.querySelectorAll('.placed-item').forEach(item => item.remove());
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            updateStats();
+            
+            if (currentMode === 'thematic') {
+                loadThematicLevel();
+            } else {
+                loadMixedLevel();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('levelDisplay').textContent = currentLevel;
+            document.getElementById('correctDisplay').textContent = correctCount;
+            document.getElementById('incorrectDisplay').textContent = incorrectCount;
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.classList.add('show');
+
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+
+        function playSound(soundName) {
+            // Placeholder - gerçek ses dosyaları eklenecek
+            try {
+                sounds[soundName].play().catch(e => console.log('Ses çalınamadı'));
+            } catch (e) {
+                console.log('Ses dosyası bulunamadı');
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function backToMenu() {
+            document.getElementById('gameArea').classList.remove('active');
+            document.getElementById('modeSelector').style.display = 'block';
+            currentMode = null;
+            currentLevel = 1;
+            resetStats();
+        }
+    </script>
+</body>
+</html>
