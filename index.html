@@ -670,7 +670,7 @@
             div.dataset.itemName = item.name;
 
             // Resim yolunu oluştur
-            const imagePath = `assets/images/${item.name}.png`;
+            const imagePath = `assets/${item.name}.png`;
 
             div.innerHTML = `
                 <div class="item-image">
@@ -753,7 +753,7 @@
             placedItem.className = 'placed-item';
             placedItem.id = `placed-${itemId}`;
             
-            const imagePath = `assets/images/${draggedItem.dataset.itemName}.png`;
+            const imagePath = `assets/${draggedItem.dataset.itemName}.png`;
             
             placedItem.innerHTML = `
                 <span class="placed-item-icon">
