@@ -13,17 +13,92 @@
 
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animasyonlu arka plan elemanları */
+        .background-decorations {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .palm-tree {
+            position: absolute;
+            font-size: 4em;
+            animation: sway 3s ease-in-out infinite;
+        }
+
+        .palm-left {
+            bottom: 0;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .palm-right {
+            bottom: 0;
+            right: 5%;
+            animation-delay: 1.5s;
+        }
+
+        .cloud {
+            position: absolute;
+            font-size: 3em;
+            animation: float 20s linear infinite;
+            opacity: 0.7;
+        }
+
+        .cloud1 { top: 10%; animation-delay: 0s; }
+        .cloud2 { top: 20%; animation-delay: 7s; }
+        .cloud3 { top: 15%; animation-delay: 14s; }
+
+        .star {
+            position: absolute;
+            font-size: 2em;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        .star1 { top: 5%; left: 10%; animation-delay: 0s; }
+        .star2 { top: 8%; right: 15%; animation-delay: 0.5s; }
+        .star3 { top: 12%; left: 80%; animation-delay: 1s; }
+        .star4 { top: 25%; left: 5%; animation-delay: 1.5s; }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .container {
             max-width: 1200px;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         .header {
@@ -138,6 +213,11 @@
             cursor: move;
             transition: transform 0.2s, box-shadow 0.2s;
             padding: 10px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .draggable-item:nth-child(odd) {
+            animation-delay: 0.3s;
         }
 
         .draggable-item:hover {
@@ -298,6 +378,13 @@
 
         .feedback.show {
             transform: translate(-50%, -50%) scale(1);
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
         }
 
         .feedback.correct {
@@ -324,6 +411,19 @@
     </style>
 </head>
 <body>
+    <!-- Arka plan süslemeleri -->
+    <div class="background-decorations">
+        <div class="palm-tree palm-left">🌴</div>
+        <div class="palm-tree palm-right">🌴</div>
+        <div class="cloud cloud1">☁️</div>
+        <div class="cloud cloud2">☁️</div>
+        <div class="cloud cloud3">☁️</div>
+        <div class="star star1">⭐</div>
+        <div class="star star2">✨</div>
+        <div class="star star3">⭐</div>
+        <div class="star star4">✨</div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>🎯 Sınıflandırma Becerileri</h1>
